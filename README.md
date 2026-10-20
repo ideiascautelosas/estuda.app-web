@@ -1,36 +1,51 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# estuda.app — landing & checkout
 
-## Getting Started
+Marketing landing page and Stripe-powered checkout for [estuda.app](https://estuda.app). Next.js (App Router), talking directly to `backend`.
 
-First, run the development server:
+## How this fits together
+
+- **Auth**: same phone + OTP flow as the mobile app (`POST /v1/auth/phone/start` / `/verify`) — no separate account system. The JWT is stored in `localStorage` and sent as a bearer token.
+- **Checkout**: `POST /v1/billing/checkout` creates a real Stripe Checkout Session and returns its URL; this app just redirects the browser there. The plan only activates once Stripe confirms payment via the backend's `/v1/billing/stripe/webhook` — so a user who buys here and then opens the mobile app sees the same account, already upgraded.
+- **Plans/pricing**: fetched live from `GET /v1/billing/plans`, so the price on this page can never drift from what Stripe actually charges.
+
+See `backend/.env.example` for the Stripe keys (`STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRICE_PREMIUM`) that have to be set on the backend for checkout to actually work.
+
+## Getting started
 
 ```bash
+cp .env.example .env.local   # point NEXT_PUBLIC_API_URL at your backend
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Optional: app store download links
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+You can toggle the mobile app download buttons with environment variables:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+NEXT_PUBLIC_ENABLE_APP_DOWNLOAD_LINKS=true
+NEXT_PUBLIC_APPLE_APP_STORE_URL=https://apps.apple.com/... 
+NEXT_PUBLIC_GOOGLE_PLAY_URL=https://play.google.com/store/apps/details?id=...
+```
 
-## Learn More
+Leave `NEXT_PUBLIC_ENABLE_APP_DOWNLOAD_LINKS=false` to hide them.
 
-To learn more about Next.js, take a look at the following resources:
+### SEO and analytics
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+NEXT_PUBLIC_SITE_URL=https://estuda.app
+NEXT_PUBLIC_GA_MEASUREMENT_ID=G-XXXXXXXXXX
+NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION=
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- `NEXT_PUBLIC_SITE_URL`: used for canonical URLs, sitemap and robots metadata
+- `NEXT_PUBLIC_GA_MEASUREMENT_ID`: enables Google Analytics 4 after the visitor accepts analytics cookies
+- `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION`: optional Google Search Console verification token
 
-## Deploy on Vercel
+Open [http://localhost:3000](http://localhost:3000). The backend (`backend`) must be running at the URL in `NEXT_PUBLIC_API_URL` (defaults to `http://localhost:8001`).
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+To test a full purchase locally, forward Stripe's webhook to the backend with the Stripe CLI:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```bash
+stripe listen --forward-to localhost:8001/v1/billing/stripe/webhook
+```
