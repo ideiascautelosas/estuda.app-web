@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import { LegalPage } from "@/components/LegalPage";
 import { LEGAL_INFO } from "@/lib/legal";
+import { pageMetadata } from "@/lib/site";
 
 export const metadata: Metadata = {
-  title: "Política de Privacidade | Estuda",
-  description: "Como o estuda.app coleta, usa, compartilha e protege dados pessoais dos usuários.",
+  ...pageMetadata("/politica-de-privacidade", "Política de Privacidade | Estuda", "Como o estuda.app coleta, usa, compartilha e protege dados pessoais dos usuários."),
 };
 
 export default function PrivacyPolicyPage() {

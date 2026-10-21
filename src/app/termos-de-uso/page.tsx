@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import { LegalPage } from "@/components/LegalPage";
 import { LEGAL_INFO } from "@/lib/legal";
+import { pageMetadata } from "@/lib/site";
 
 export const metadata: Metadata = {
-  title: "Termos de Uso | Estuda",
-  description: "Regras e condições para uso do estuda.app e contratação dos planos Standard e Premium.",
+  ...pageMetadata("/termos-de-uso", "Termos de Uso | Estuda", "Regras e condições para uso do estuda.app e contratação dos planos Standard e Premium."),
 };
 
 export default function TermsOfUsePage() {

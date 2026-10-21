@@ -38,9 +38,9 @@ export const metadata: Metadata = {
   creator: LEGAL_INFO.operatorName,
   publisher: LEGAL_INFO.operatorName,
   category: "education",
-  alternates: {
-    canonical: "/",
-  },
+  // No canonical here: a layout-level one is inherited by every page, which
+  // told search engines each page was a copy of the home. Pages set their
+  // own (lib/site.ts pageMetadata).
   openGraph: {
     type: "website",
     locale: "pt_BR",

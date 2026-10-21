@@ -4,10 +4,14 @@ import { AppDownloadLinks } from "@/components/AppDownloadLinks";
 import { AppScreenshots } from "@/components/AppScreenshots";
 import { CheckoutFlow } from "@/components/CheckoutFlow";
 import { PricingToggle } from "@/components/PricingToggle";
+import type { Metadata } from "next";
 import { getPlans, type PlanOut } from "@/lib/billing";
+import { SITE_DESCRIPTION, SITE_TITLE, pageMetadata } from "@/lib/site";
 import { PRELAUNCH } from "@/lib/launch";
 import { PreLaunch } from "@/components/PreLaunch";
 import { SiteFooter } from "@/components/SiteFooter";
+
+export const metadata: Metadata = pageMetadata("/", SITE_TITLE, SITE_DESCRIPTION);
 
 const FALLBACK_PREMIUM: PlanOut = {
   id: "premium",

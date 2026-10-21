@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
 import { LegalPage } from "@/components/LegalPage";
 import { LEGAL_INFO } from "@/lib/legal";
+import { pageMetadata } from "@/lib/site";
 
 export const metadata: Metadata = {
-  title: "Política de Cancelamento | Estuda",
-  description: "Entenda como cancelar sua assinatura no estuda.app, seus direitos e prazos.",
+  ...pageMetadata("/politica-de-cancelamento", "Política de Cancelamento | Estuda", "Entenda como cancelar sua assinatura no estuda.app, seus direitos e prazos."),
   robots: "index, follow",
 };
 

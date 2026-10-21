@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { LEGAL_INFO } from "@/lib/legal";
 
 function envValue(value: string | undefined): string | null {
@@ -63,3 +64,23 @@ export const STRUCTURED_DATA = [
     description: SITE_DESCRIPTION,
   },
 ] as const;
+
+// Each page's own canonical URL and share card. Next merges metadata per
+// top-level key, so a page that sets `openGraph` replaces the layout's
+// whole object — hence the shared fields repeated here.
+export function pageMetadata(path: string, title: string, description: string): Metadata {
+  return {
+    title,
+    description,
+    alternates: { canonical: path },
+    openGraph: {
+      type: "website",
+      locale: "pt_BR",
+      siteName: SITE_NAME,
+      url: path,
+      title,
+      description,
+      images: [{ url: DEFAULT_OG_IMAGE, alt: SITE_NAME }],
+    },
+  };
+}
