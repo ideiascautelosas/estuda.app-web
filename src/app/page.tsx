@@ -16,7 +16,7 @@ export const metadata: Metadata = pageMetadata("/", SITE_TITLE, SITE_DESCRIPTION
 const FALLBACK_PREMIUM: PlanOut = {
   id: "premium",
   name: "Premium",
-  price_cents: 3900,
+  price_cents: 2990,
   interval: "month",
   trial_days: 7,
   features: {},
@@ -26,7 +26,7 @@ const FALLBACK_PREMIUM: PlanOut = {
 const FALLBACK_STANDARD: PlanOut = {
   id: "standard",
   name: "Standard",
-  price_cents: 1499,
+  price_cents: 1490,
   interval: "month",
   trial_days: 7,
   features: {},
@@ -85,6 +85,7 @@ export default async function Home() {
   if (PRELAUNCH) return <PreLaunch />;
   let premium = FALLBACK_PREMIUM;
   let premiumAnnual: PlanOut | null = null;
+  let regularMonthlyCents = FALLBACK_PREMIUM.price_cents;
   let standard = FALLBACK_STANDARD;
   try {
     const plans = await getPlans();
@@ -94,10 +95,10 @@ export default async function Home() {
     // Once the window closes, list_plans stops returning it and this page
     // falls back to the regular "premium" plan automatically.
     premium = plans.find((p) => p.id === "premium_founding") ?? plans.find((p) => p.id === "premium") ?? FALLBACK_PREMIUM;
-    // Same founding-window rule as the monthly plan above: while the
-    // discounted annual founding price is being offered, it replaces the
-    // regular annual price everywhere on this page.
-    premiumAnnual = plans.find((p) => p.id === "premium_founding_annual") ?? plans.find((p) => p.id === "premium_annual") ?? null;
+    // Annual (R$ 299,90) and the founding rate are sold only here, on the
+    // website; the stores sell the monthly plans. Founding is monthly only.
+    premiumAnnual = plans.find((p) => p.id === "premium_annual") ?? null;
+    regularMonthlyCents = plans.find((p) => p.id === "premium")?.price_cents ?? regularMonthlyCents;
     // Standard has no founding/annual variant — just the one monthly plan.
     standard = plans.find((p) => p.id === "standard") ?? FALLBACK_STANDARD;
   } catch {
@@ -107,7 +108,7 @@ export default async function Home() {
   }
 
   const isFounding = premium.id === "premium_founding";
-  const promoEndsAt = premium.promo_ends_at ?? premiumAnnual?.promo_ends_at ?? null;
+  const promoEndsAt = premium.promo_ends_at ?? null;
 
   return (
     <div className="flex min-h-full flex-col">
@@ -226,7 +227,7 @@ export default async function Home() {
                 <p className="text-sm text-slate-600">Sem anúncios · {standard.trial_days ?? 7} dias grátis para testar, cancele quando quiser</p>
                 <CheckoutFlow planId={standard.id} label="Começar no Standard" analyticsLocation="pricing-standard" />
               </div>
-              <PricingToggle monthly={premium} annual={premiumAnnual} founding={isFounding} promoEndsAt={promoEndsAt} />
+              <PricingToggle monthly={premium} annual={premiumAnnual} regularMonthlyCents={regularMonthlyCents} founding={isFounding} promoEndsAt={promoEndsAt} />
             </div>
           </div>
         </section>
