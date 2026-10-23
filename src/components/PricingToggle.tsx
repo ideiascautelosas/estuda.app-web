@@ -16,19 +16,20 @@ function formatPromoDate(iso: string): string {
 export function PricingToggle({
   monthly,
   annual,
+  regularMonthlyCents,
   founding = false,
   promoEndsAt = null,
 }: {
   monthly: PlanOut;
   annual: PlanOut | null;
+  // The regular premium monthly price: the annual savings are measured
+  // against it, not against the founding rate shown as "monthly".
+  regularMonthlyCents?: number;
   founding?: boolean;
   promoEndsAt?: string | null;
 }) {
   const [billingInterval, setBillingInterval] = useState<"month" | "year">("month");
-  const savingsCents = annual ? monthly.price_cents * 12 - annual.price_cents : 0;
-  // The founding rate can make paying monthly cheaper over a year than the
-  // annual plan (e.g. 12 × R$29 < R$390) — don't offer annual as a "savings"
-  // option when it no longer actually saves anything.
+  const savingsCents = annual ? (regularMonthlyCents ?? monthly.price_cents) * 12 - annual.price_cents : 0;
   const annualIsBetterDeal = !!annual && savingsCents > 0;
   const plan = billingInterval === "year" && annualIsBetterDeal ? annual! : monthly;
 
