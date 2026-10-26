@@ -64,7 +64,7 @@ export function AppDownloadLinks({ className = "", align = "center", analyticsLo
             target="_blank"
             rel="noreferrer"
             onClick={() => trackEvent("app_store_click", { store: "apple", location: analyticsLocation })}
-            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-900 transition hover:border-slate-400 hover:bg-slate-50"
+            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-slate-300 bg-surface px-5 py-3 text-sm font-semibold text-slate-900 transition hover:border-slate-400 hover:bg-slate-50"
           >
             <StoreIcon store="apple" />
             Baixar na App Store
@@ -76,7 +76,7 @@ export function AppDownloadLinks({ className = "", align = "center", analyticsLo
             target="_blank"
             rel="noreferrer"
             onClick={() => trackEvent("app_store_click", { store: "google_play", location: analyticsLocation })}
-            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-900 transition hover:border-slate-400 hover:bg-slate-50"
+            className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-slate-300 bg-surface px-5 py-3 text-sm font-semibold text-slate-900 transition hover:border-slate-400 hover:bg-slate-50"
           >
             <StoreIcon store="google" />
             Baixar no Google Play

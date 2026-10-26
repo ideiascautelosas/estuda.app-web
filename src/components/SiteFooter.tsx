@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { AppDownloadLinks } from "@/components/AppDownloadLinks";
 import { CookieSettingsButton } from "@/components/CookieSettingsButton";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 export function SiteFooter({ showDownloads = true }: { showDownloads?: boolean }) {
   return (
@@ -25,6 +26,7 @@ export function SiteFooter({ showDownloads = true }: { showDownloads?: boolean }
             </Link>
             <CookieSettingsButton className="transition hover:text-slate-700" />
           </nav>
+          <ThemeToggle />
           <p>© {new Date().getFullYear()} Estuda. Todos os direitos reservados.</p>
         </div>
       </div>

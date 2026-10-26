@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { CookieSettingsButton } from "@/components/CookieSettingsButton";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 type LegalPageProps = {
   title: string;
@@ -12,7 +13,7 @@ type LegalPageProps = {
 export function LegalPage({ title, description, lastUpdated, children }: LegalPageProps) {
   return (
     <div className="min-h-full bg-slate-50">
-      <header className="border-b border-slate-200 bg-white">
+      <header className="border-b border-slate-200 bg-surface">
         <div className="mx-auto flex max-w-4xl items-center justify-between px-6 py-5">
           <Link href="/" className="text-lg font-extrabold tracking-tight text-slate-900">
             estuda.app
@@ -28,12 +29,13 @@ export function LegalPage({ title, description, lastUpdated, children }: LegalPa
               Cancelamento
             </Link>
             <CookieSettingsButton className="transition hover:text-slate-900" />
+            <ThemeToggle />
           </nav>
         </div>
       </header>
 
       <main className="mx-auto max-w-4xl px-6 py-12 sm:py-16">
-        <div className="rounded-3xl border border-slate-200 bg-white p-8 shadow-sm sm:p-10">
+        <div className="rounded-3xl border border-slate-200 bg-surface p-8 shadow-sm sm:p-10">
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-brand">Documento legal</p>
           <h1 className="mt-4 text-3xl font-extrabold tracking-tight text-slate-900 sm:text-4xl">{title}</h1>
           <p className="mt-4 max-w-2xl text-base leading-relaxed text-slate-600">{description}</p>

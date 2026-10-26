@@ -35,3 +35,28 @@ export function checkout(planId: string, token: string) {
 export function getEntitlements(token: string) {
   return api.get<EntitlementsResponse>("/v1/billing/entitlements", { token, cache: "no-store" });
 }
+
+// What each plan includes, built by the backend from the same rules its
+// gates use (services/plan_comparison.py) — the site keeps no copy.
+export interface ComparisonRow {
+  key: string;
+  group: string;
+  label: string;
+  free: string;
+  standard: string;
+  premium: string;
+  hint: string | null;
+}
+
+export interface Comparison {
+  groups: { key: string; label: string }[];
+  rows: ComparisonRow[];
+}
+
+export async function getComparison(): Promise<Comparison | null> {
+  try {
+    return await api.get<Comparison>("/v1/billing/comparison", { cache: "no-store" });
+  } catch {
+    return null;
+  }
+}

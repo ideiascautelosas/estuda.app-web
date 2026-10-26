@@ -42,7 +42,7 @@ export function PricingToggle({
         </span>
       )}
       {annualIsBetterDeal && (
-        <div className="inline-flex rounded-full border border-slate-200 bg-white p-1">
+        <div className="inline-flex rounded-full border border-slate-200 bg-surface p-1">
           <button
             onClick={() => setBillingInterval("month")}
             className={`rounded-full px-5 py-2 text-sm font-semibold transition ${billingInterval === "month" ? "bg-brand text-white" : "text-slate-600"}`}

@@ -75,7 +75,7 @@ function CookieBanner({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-x-0 bottom-0 z-50 border-t border-slate-200 bg-white/95 backdrop-blur">
+    <div className="fixed inset-x-0 bottom-0 z-50 border-t border-slate-200 bg-background/95 backdrop-blur">
       <div className="mx-auto flex max-w-6xl flex-col gap-4 px-6 py-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="max-w-3xl">
           <p className="text-sm font-semibold text-slate-900">Cookies e analytics</p>

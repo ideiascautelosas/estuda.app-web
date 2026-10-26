@@ -1,45 +1,53 @@
 import Image from "next/image";
 import { SiteFooter } from "@/components/SiteFooter";
+import { ThemeToggle } from "@/components/ThemeToggle";
+import { ThemedScreenshot } from "@/components/ThemedScreenshot";
 import { LAUNCH_CONTACT_EMAIL } from "@/lib/launch";
 
 const HIGHLIGHTS = [
   {
-    src: "/screenshots/simulados.png",
+    screen: "dashboard",
+    alt: "Tela inicial do app estuda.app com o estudo do dia e os temas críticos",
+    title: "Um mentor que diz o que estudar hoje",
+    desc: "O app monta seus blocos de estudo com as horas da sua semana e a data da prova, e reorganiza o plano a cada simulado conforme o que você já domina.",
+  },
+  {
+    screen: "simulados",
     alt: "Tela de simulados do app estuda.app com os tipos de simulado e o histórico",
     title: "Simulados no formato da banca",
     desc: "Questões de provas anteriores da sua banca, montadas com o peso de cada matéria no edital. Correção comentada, com a justificativa da própria banca quando ela publica.",
   },
   {
-    src: "/screenshots/revisao.png",
+    screen: "revisao",
     alt: "Tela de revisão de erros do app estuda.app com questões agrupadas por tema",
     title: "Seus erros viram plano de estudo",
     desc: "Cada questão errada vai para a revisão dirigida: o tema, um resumo e um novo simulado só daquilo que você ainda não domina.",
   },
   {
-    src: "/screenshots/insights.png",
+    screen: "insights",
     alt: "Tela de incidência por tema do app estuda.app",
     title: "Saiba o que mais cai",
     desc: "A incidência de cada matéria e tema nas últimas provas da banca, para estudar primeiro o que mais pesa na nota.",
   },
   {
-    src: "/screenshots/tutor.png",
-    alt: "Tela do Tutor com IA do app estuda.app com um resumo de tema",
-    title: "Tutor com IA",
-    desc: "Peça um resumo ou uma explicação de qualquer tema, na hora, a partir dos seus próprios erros.",
+    screen: "tutor",
+    alt: "Tela do Tutor com IA do app estuda.app explicando um tema a partir de um resumo",
+    title: "Resumos e Tutor com IA",
+    desc: "Resumos revisados dos temas do edital, sugeridos a partir dos seus erros, e um tutor que explica a dúvida na hora.",
   },
 ];
 
 const MORE = [
-  { title: "Plano de estudo diário", desc: "Quantos dias faltam, o que estudar hoje e lembretes na hora certa." },
+  { title: "Histórico que ensina o app", desc: "Quanto mais simulados você faz, mais certeiro fica o direcionamento. Nos planos pagos, todo o histórico conta." },
   { title: "Painel de desempenho", desc: "Consistência, eficiência e prontidão para a prova." },
   { title: "Estude offline", desc: "Baixe provas completas e treine sem internet." },
   { title: "Mais de um concurso", desc: "Prepare-se para vários cargos e troque quando quiser." },
 ];
 
-function Phone({ src, alt, className = "", priority = false }: { src: string; alt: string; className?: string; priority?: boolean }) {
+function Phone({ screen, alt, className = "", priority = false }: { screen: string; alt: string; className?: string; priority?: boolean }) {
   return (
-    <div className={`overflow-hidden rounded-[32px] border-[5px] border-slate-900 bg-slate-900 shadow-2xl ${className}`}>
-      <Image src={src} alt={alt} width={390} height={844} className="w-full" priority={priority} />
+    <div className={`overflow-hidden rounded-[32px] border-[5px] border-slate-900 bg-slate-900 dark:border-slate-200 dark:bg-slate-200 shadow-2xl ${className}`}>
+      <ThemedScreenshot name={screen} alt={alt} priority={priority} />
     </div>
   );
 }
@@ -52,11 +60,12 @@ export function PreLaunch() {
         <div className="mx-auto flex max-w-6xl items-center gap-2.5 px-6 py-4">
           <Image src="/logo.png" alt="" width={32} height={32} className="rounded-[9px]" />
           <span className="text-lg font-extrabold tracking-tight text-slate-900">estuda.app</span>
+          <ThemeToggle className="ml-auto" />
         </div>
       </header>
 
       <main className="flex-1">
-        <section className="overflow-hidden bg-gradient-to-b from-brand-light to-white">
+        <section className="overflow-hidden bg-gradient-to-b from-brand-light to-background">
           <div className="mx-auto grid max-w-6xl items-center gap-12 px-6 pt-14 pb-20 lg:grid-cols-[1.05fr_1fr] lg:pt-20">
             <div className="text-center lg:text-left">
               <span className="inline-block rounded-full bg-brand/10 px-4 py-1.5 text-xs font-bold uppercase tracking-wide text-brand">
@@ -66,7 +75,7 @@ export function PreLaunch() {
                 Estude o que cai na <span className="text-brand">sua</span> prova.
               </h1>
               <p className="mx-auto mt-6 max-w-xl text-lg leading-relaxed text-slate-600 lg:mx-0">
-                Simulados com questões reais da sua banca, revisão dirigida dos seus erros e um tutor com IA — tudo no celular, num plano de estudo feito para o seu concurso.
+                Um mentor de estudo no celular: o app acompanha cada simulado e diz o que estudar a seguir — plano do dia, resumos e simulados direcionados aos seus temas fracos, no formato da sua banca.
               </p>
               <div className="mt-9 flex flex-col items-center gap-3 sm:flex-row sm:justify-center lg:justify-start">
                 <a href={notify} className="rounded-xl bg-brand px-6 py-3.5 text-base font-bold text-white shadow-lg shadow-brand/20 transition hover:bg-brand-dark">
@@ -77,9 +86,9 @@ export function PreLaunch() {
             </div>
 
             <div className="relative mx-auto flex h-[460px] w-full max-w-[460px] items-center justify-center sm:h-[560px]">
-              <Phone src="/screenshots/simulados.png" alt="Tela de simulados do app" className="absolute left-0 top-12 w-[38%] -rotate-6 opacity-95" priority />
-              <Phone src="/screenshots/revisao.png" alt="Tela de revisão de erros do app" className="absolute right-0 top-12 w-[38%] rotate-6 opacity-95" priority />
-              <Phone src="/screenshots/dashboard.png" alt="Tela inicial do app com o plano do dia" className="relative z-10 w-[46%]" priority />
+              <Phone screen="simulados" alt="Tela de simulados do app" className="absolute left-0 top-12 w-[38%] -rotate-6 opacity-95" priority />
+              <Phone screen="revisao" alt="Tela de revisão de erros do app" className="absolute right-0 top-12 w-[38%] rotate-6 opacity-95" priority />
+              <Phone screen="dashboard" alt="Tela inicial do app com o plano do dia" className="relative z-10 w-[46%]" priority />
             </div>
           </div>
         </section>
@@ -90,9 +99,9 @@ export function PreLaunch() {
             <p className="mx-auto mt-3 max-w-xl text-center text-slate-600">Tudo gira em torno da sua banca, do seu cargo e dos seus erros.</p>
             <div className="mt-16 flex flex-col gap-20">
               {HIGHLIGHTS.map((h, i) => (
-                <div key={h.src} className={`flex flex-col items-center gap-10 md:flex-row ${i % 2 ? "md:flex-row-reverse" : ""}`}>
+                <div key={h.screen} className={`flex flex-col items-center gap-10 md:flex-row ${i % 2 ? "md:flex-row-reverse" : ""}`}>
                   <div className="w-56 shrink-0 sm:w-64">
-                    <Phone src={h.src} alt={h.alt} />
+                    <Phone screen={h.screen} alt={h.alt} />
                   </div>
                   <div className="max-w-md text-center md:text-left">
                     <span className="text-sm font-bold text-brand">0{i + 1}</span>
@@ -108,7 +117,7 @@ export function PreLaunch() {
         <section className="border-t border-slate-100 bg-slate-50 py-16">
           <div className="mx-auto grid max-w-6xl gap-6 px-6 sm:grid-cols-2 lg:grid-cols-4">
             {MORE.map((m) => (
-              <div key={m.title} className="rounded-2xl border border-slate-200 bg-white p-6">
+              <div key={m.title} className="rounded-2xl border border-slate-200 bg-surface p-6">
                 <h3 className="text-base font-bold text-slate-900">{m.title}</h3>
                 <p className="mt-2 text-sm leading-relaxed text-slate-600">{m.desc}</p>
               </div>
