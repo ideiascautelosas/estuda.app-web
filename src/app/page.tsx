@@ -4,8 +4,10 @@ import { AppDownloadLinks } from "@/components/AppDownloadLinks";
 import { AppScreenshots } from "@/components/AppScreenshots";
 import { CheckoutFlow } from "@/components/CheckoutFlow";
 import { PricingToggle } from "@/components/PricingToggle";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import type { Metadata } from "next";
-import { getPlans, type PlanOut } from "@/lib/billing";
+import { getComparison, getPlans, type PlanOut } from "@/lib/billing";
+import { getFeatures } from "@/lib/features";
 import { SITE_DESCRIPTION, SITE_TITLE, pageMetadata } from "@/lib/site";
 import { PRELAUNCH } from "@/lib/launch";
 import { PreLaunch } from "@/components/PreLaunch";
@@ -37,40 +39,31 @@ function formatPromoDate(iso: string): string {
   return new Date(`${iso}T00:00:00`).toLocaleDateString("pt-BR");
 }
 
-const FEATURES = [
-  { title: "Simulados no formato da banca", desc: "Provas geradas no estilo exato da banca do seu cargo, com correção comentada questão a questão." },
-  { title: "Incidência de temas", desc: "Veja o que mais cai nas últimas provas da sua banca para o seu cargo, e priorize o estudo por ali." },
-  { title: "Revisão dirigida dos seus erros", desc: "Cada erro vira uma questão de revisão focada naquele tema, no seu plano de estudo." },
-  { title: "Tutor com IA", desc: "Peça um resumo de qualquer tema, na hora, sem sair do simulado." },
-  { title: "Painel de desempenho com recomendações", desc: "Métricas de consistência, eficiência e prontidão para a prova, com um sistema de recomendações que aponta exatamente o que estudar a seguir." },
-  { title: "Pacote offline", desc: "Baixe até 3 provas completas e treine sem depender de internet — o tempo é validado no envio." },
-  { title: "5 questões por dia no WhatsApp", desc: "Mantenha o hábito nos dias corridos, direto no seu WhatsApp." },
+// The mentor loop, in the order the student lives it.
+const MENTOR_STEPS = [
+  { title: "Plano do dia", desc: "O app monta seus blocos de estudo com as horas da sua semana, a data da prova e o seu ritmo." },
+  { title: "Simulado direcionado", desc: "Simulados no formato da banca, puxando os temas em que você mais erra e os que mais caem." },
+  { title: "Resumo do tema fraco", desc: "Cada erro aponta o resumo certo, com o Tutor com IA para tirar a dúvida na hora." },
+  { title: "Reteste e plano ajustado", desc: "O tema volta em um reteste agendado e o plano se ajusta ao que você já domina." },
 ];
 
-// Kept in sync by hand with app-concursos-backend's seed_data.BILLING_PLANS
-// — there's no shared source between the two repos, so a plan change there
-// needs the same update made here (and in the mobile app's MATRIX).
-const COMPARISON: { feature: string; free: string; standard: string; premium: string }[] = [
-  { feature: "Anúncios", free: "com anúncios", standard: "sem anúncios", premium: "sem anúncios" },
-  { feature: "Simulados grátis (diagnóstico e rápido)", free: "✓", standard: "✓", premium: "✓" },
-  { feature: "Prepare-se para mais de um concurso", free: "—", standard: "✓", premium: "✓" },
-  { feature: "Incidência de temas da banca", free: "top 3", standard: "top 10", premium: "completa" },
-  { feature: "Simulado completo (120 questões)", free: "—", standard: "✓", premium: "✓" },
-  { feature: "Simulado por tema fraco", free: "—", standard: "✓", premium: "✓" },
-  { feature: "Revisão de erros com estudo direcionado", free: "—", standard: "✓", premium: "✓" },
-  { feature: "Histórico de simulados", free: "7 dias", standard: "ilimitado", premium: "ilimitado" },
-  { feature: "Pacote offline", free: "—", standard: "1 prova", premium: "até 3 provas" },
-  { feature: "Comparativo com outros candidatos", free: "básico", standard: "completo", premium: "completo" },
-  { feature: "Plano de estudo recalculável", free: "—", standard: "✓", premium: "✓" },
-  { feature: "Tutor com IA", free: "—", standard: "—", premium: "ilimitado" },
-  { feature: "Painel de desempenho com recomendações", free: "—", standard: "—", premium: "✓" },
-  { feature: "Simulado diário no WhatsApp", free: "—", standard: "—", premium: "✓" },
+const FEATURES = [
+  { title: "Um mentor de estudo no bolso", desc: "O app acompanha cada simulado e diz o que estudar a seguir: plano do dia, resumos e simulados direcionados aos seus temas fracos." },
+  { title: "Simulados no formato da banca", desc: "Provas montadas no estilo exato da banca do seu cargo, com correção comentada questão a questão." },
+  { title: "Revisão dirigida dos seus erros", desc: "Cada erro vira um resumo, um simulado só daquele tema e um reteste agendado." },
+  { title: "Resumos e Tutor com IA", desc: "Resumos revisados dos temas do edital e um tutor que explica o que você errou, sem sair do estudo." },
+  { title: "Incidência de temas", desc: "Veja o que mais cai nas últimas provas da sua banca para o seu cargo, e priorize o estudo por ali." },
+  { title: "Provas anteriores na íntegra", desc: "Faça a última prova da sua banca e veja em que posição você ficaria na lista de aprovados.", flag: "previous_contest" },
+  { title: "Painel de desempenho com recomendações", desc: "Consistência, eficiência e prontidão para a prova, com recomendações que apontam exatamente o que estudar a seguir." },
+  { title: "Pacote offline", desc: "Baixe até 3 provas completas e treine sem depender de internet — o tempo é validado no envio." },
+  { title: "5 questões por dia no WhatsApp", desc: "Mantenha o hábito nos dias corridos, direto no seu WhatsApp.", flag: "whatsapp" },
 ];
 
 const FAQ = [
   { q: "O app é gratuito? Tem anúncios?", a: "Sim, o estuda.app é gratuito e pode ser usado sem pagar nada. Para manter a versão gratuita, ela exibe anúncios. Quem assina o Standard ou o Premium usa o app sem anúncios." },
   { q: "Como funcionam os anúncios?", a: "Os anúncios aparecem apenas na versão gratuita e podem ser fornecidos pelo Google AdMob, que pode usar identificadores do dispositivo para exibir anúncios. Detalhes na Política de Privacidade." },
   { q: "Como remover os anúncios?", a: "Assinando qualquer plano pago (Standard ou Premium). Os anúncios deixam de ser exibidos enquanto a assinatura estiver ativa." },
+  { q: "Qual a diferença entre o grátis e os planos pagos?", a: "No grátis guardamos só os últimos 7 dias de simulados. É com esse histórico que o app descobre seus temas fracos e monta o plano, os resumos e os simulados direcionados — com uma semana de dados, o direcionamento acerta menos. No Standard e no Premium todo o seu histórico fica guardado e entra nas recomendações, sem anúncios." },
   { q: "Como funciona o teste grátis?", a: "Você tem 7 dias de acesso completo ao Premium antes da primeira cobrança. Cancele antes do fim do teste e não paga nada." },
   { q: "Onde eu pago?", a: "O pagamento é feito aqui no site, com Stripe — a mesma infraestrutura usada por milhares de empresas para processar cartões com segurança. Seu cartão não passa pelos nossos servidores." },
   { q: "Como cancelo?", a: "Você pode solicitar o cancelamento da renovação pelos canais oficiais informados ao assinante. Se cancelar antes do fim do teste grátis, a primeira cobrança não é realizada." },
@@ -83,6 +76,9 @@ function formatPrice(cents: number): string {
 
 export default async function Home() {
   if (PRELAUNCH) return <PreLaunch />;
+  const [flags, comparison] = await Promise.all([getFeatures(), getComparison()]);
+  const features = FEATURES.filter((f) => !f.flag || flags[f.flag]);
+  const historyRow = comparison?.rows.find((r) => r.key === "history");
   let premium = FALLBACK_PREMIUM;
   let premiumAnnual: PlanOut | null = null;
   let regularMonthlyCents = FALLBACK_PREMIUM.price_cents;
@@ -112,28 +108,35 @@ export default async function Home() {
 
   return (
     <div className="flex min-h-full flex-col">
-      <header className="sticky top-0 z-40 border-b border-slate-100 bg-white/80 backdrop-blur">
+      <header className="sticky top-0 z-40 border-b border-slate-100 bg-background/80 backdrop-blur">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-4">
           <div className="flex items-center gap-2.5">
             <Image src="/logo.png" alt="" width={32} height={32} className="rounded-[9px]" />
             <span className="text-lg font-extrabold tracking-tight text-slate-900">estuda.app</span>
           </div>
           <nav className="hidden items-center gap-8 text-sm font-medium text-slate-600 sm:flex">
+            <a href="#mentor" className="hover:text-slate-900">Como funciona</a>
             <a href="#recursos" className="hover:text-slate-900">Recursos</a>
             <a href="#preco" className="hover:text-slate-900">Preço</a>
             <a href="#faq" className="hover:text-slate-900">Dúvidas</a>
           </nav>
-          <CheckoutFlow planId={premium.id} label="Assinar" analyticsLocation="header" />
+          <div className="flex items-center gap-3">
+            {/* On phones the header has no room next to "Assinar": the footer has it. */}
+            <span className="hidden sm:block">
+              <ThemeToggle />
+            </span>
+            <CheckoutFlow planId={premium.id} label="Assinar" analyticsLocation="header" />
+          </div>
         </div>
       </header>
 
       <main className="flex-1">
         <section className="mx-auto max-w-6xl px-6 pt-16 pb-20 text-center sm:pt-24">
           <h1 className="mx-auto max-w-3xl text-4xl font-extrabold tracking-tight text-slate-900 sm:text-6xl">
-            Estude para o seu concurso com foco no que realmente cai
+            Um mentor de estudo que diz o que estudar para o seu concurso
           </h1>
           <p className="mx-auto mt-6 max-w-xl text-lg text-slate-600">
-            Simulados no formato exato da sua banca, revisão dirigida dos seus erros e um tutor com IA. Sem enrolação.
+            O app acompanha cada simulado e monta o seu plano: resumos e simulados direcionados aos seus temas fracos, no formato da sua banca.
           </p>
           <div className="mt-9 flex flex-col items-center gap-3">
             {isFounding && (
@@ -160,14 +163,32 @@ export default async function Home() {
           </div>
         </section>
 
-        <AppScreenshots />
+        <section id="mentor" className="border-t border-slate-100 py-20">
+          <div className="mx-auto max-w-6xl px-6">
+            <h2 className="text-center text-3xl font-extrabold tracking-tight text-slate-900">Você estuda, o app direciona</h2>
+            <p className="mx-auto mt-3 max-w-xl text-center text-slate-600">
+              Como um mentor, o estuda.app aprende com cada simulado e decide o próximo passo do seu estudo.
+            </p>
+            <ol className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+              {MENTOR_STEPS.map((step, i) => (
+                <li key={step.title} className="rounded-2xl border border-slate-200 bg-surface p-6">
+                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-brand/10 text-sm font-bold text-brand">{i + 1}</span>
+                  <h3 className="mt-4 text-base font-bold text-slate-900">{step.title}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-slate-600">{step.desc}</p>
+                </li>
+              ))}
+            </ol>
+          </div>
+        </section>
+
+        <AppScreenshots flags={flags} />
 
         <section id="recursos" className="border-t border-slate-100 bg-slate-50 py-20">
           <div className="mx-auto max-w-6xl px-6">
             <h2 className="text-center text-3xl font-extrabold tracking-tight text-slate-900">Tudo o que você precisa para passar</h2>
             <div className="mt-12 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-              {FEATURES.map((f) => (
-                <div key={f.title} className="rounded-2xl border border-slate-200 bg-white p-6">
+              {features.map((f) => (
+                <div key={f.title} className="rounded-2xl border border-slate-200 bg-surface p-6">
                   <h3 className="text-base font-bold text-slate-900">{f.title}</h3>
                   <p className="mt-2 text-sm leading-relaxed text-slate-600">{f.desc}</p>
                 </div>
@@ -183,28 +204,55 @@ export default async function Home() {
               Seja transparente com você: a versão gratuita é financiada por anúncios. Assinando o Standard ou o Premium, o app fica sem anúncios, além de liberar mais recursos.
             </p>
 
-            <div className="mt-12 overflow-x-auto rounded-2xl border border-slate-200">
-              <table className="w-full text-left text-sm">
-                <thead>
-                  <tr className="bg-slate-50 text-xs font-bold uppercase tracking-wide text-slate-500">
-                    <th className="px-5 py-4 font-bold">Recurso</th>
-                    <th className="px-5 py-4 text-center font-bold">Grátis</th>
-                    <th className="px-5 py-4 text-center font-bold text-brand">Standard</th>
-                    <th className="px-5 py-4 text-center font-bold text-brand">Premium</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {COMPARISON.map((row, i) => (
-                    <tr key={row.feature} className={i % 2 === 1 ? "bg-slate-50/60" : undefined}>
-                      <td className="px-5 py-3.5 font-medium text-slate-800">{row.feature}</td>
-                      <td className="px-5 py-3.5 text-center text-slate-500">{row.free}</td>
-                      <td className="px-5 py-3.5 text-center font-bold text-brand">{row.standard}</td>
-                      <td className="px-5 py-3.5 text-center font-bold text-brand">{row.premium}</td>
+            {comparison && (
+              <div className="mt-12 overflow-x-auto rounded-2xl border border-slate-200">
+                <table className="w-full text-left text-sm">
+                  <thead>
+                    <tr className="bg-slate-50 text-xs font-bold uppercase tracking-wide text-slate-500">
+                      <th className="px-5 py-4 font-bold">Recurso</th>
+                      <th className="px-5 py-4 text-center font-bold">Grátis</th>
+                      <th className="px-5 py-4 text-center font-bold text-brand">Standard</th>
+                      <th className="px-5 py-4 text-center font-bold text-brand">Premium</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  {comparison.groups.map((group) => {
+                    const rows = comparison.rows.filter((r) => r.group === group.key);
+                    if (!rows.length) return null;
+                    return (
+                      <tbody key={group.key}>
+                        <tr className="border-t border-slate-200">
+                          <th colSpan={4} className="px-5 pt-5 pb-2 text-xs font-bold uppercase tracking-wide text-brand">
+                            {group.label}
+                          </th>
+                        </tr>
+                        {rows.map((row) => (
+                          <tr key={row.key} className={row.key === "history" ? "bg-amber-100/40" : undefined}>
+                            <td className="px-5 py-3 align-top">
+                              <span className="font-medium text-slate-800">{row.label}</span>
+                              {row.hint && <span className="mt-0.5 block text-xs leading-relaxed text-slate-500">{row.hint}</span>}
+                            </td>
+                            <td className="px-5 py-3 text-center align-top text-slate-500">{row.free}</td>
+                            <td className="px-5 py-3 text-center align-top font-bold text-brand">{row.standard}</td>
+                            <td className="px-5 py-3 text-center align-top font-bold text-brand">{row.premium}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    );
+                  })}
+                </table>
+              </div>
+            )}
+
+            {historyRow && (
+              <div className="mt-6 rounded-2xl border border-amber-100 bg-amber-100/40 p-6">
+                <h3 className="text-base font-bold text-slate-900">Por que o histórico faz diferença</h3>
+                <p className="mt-2 text-sm leading-relaxed text-slate-700">
+                  O direcionamento do app vem do seu histórico de simulados. No grátis guardamos só os últimos {historyRow.free}: os temas
+                  fracos de semanas atrás somem, e o plano, os resumos e os simulados sugeridos ficam menos certeiros. Nos planos pagos o
+                  histórico é {historyRow.standard}, então cada simulado que você faz deixa o mentor mais preciso.
+                </p>
+              </div>
+            )}
 
             <div className="mt-10 grid gap-6 lg:grid-cols-3">
               <div className="flex flex-col items-center gap-6 rounded-2xl border border-emerald-200 bg-emerald-50/50 px-8 py-10 text-center">
@@ -214,17 +262,17 @@ export default async function Home() {
                   <span className="text-base font-semibold text-slate-500">/mês</span>
                 </p>
                 <p className="text-sm text-slate-600">
-                  Simulados de diagnóstico e rápidos, sem cartão. Esta versão exibe anúncios.
+                  Simulados, plano do dia e resumos, sem cartão. Histórico de 7 dias e anúncios.
                 </p>
                 <AppDownloadLinks analyticsLocation="pricing-free" />
               </div>
-              <div className="flex flex-col items-center gap-6 rounded-2xl border border-slate-200 bg-white px-8 py-10 text-center">
+              <div className="flex flex-col items-center gap-6 rounded-2xl border border-slate-200 bg-surface px-8 py-10 text-center">
                 <h3 className="text-lg font-bold text-slate-900">Standard</h3>
                 <p className="text-4xl font-extrabold tracking-tight text-slate-900">
                   R$ {formatPrice(standard.price_cents)}
                   <span className="text-base font-semibold text-slate-500">/mês</span>
                 </p>
-                <p className="text-sm text-slate-600">Sem anúncios · {standard.trial_days ?? 7} dias grátis para testar, cancele quando quiser</p>
+                <p className="text-sm text-slate-600">Histórico completo e sem anúncios · {standard.trial_days ?? 7} dias grátis para testar, cancele quando quiser</p>
                 <CheckoutFlow planId={standard.id} label="Começar no Standard" analyticsLocation="pricing-standard" />
               </div>
               <PricingToggle monthly={premium} annual={premiumAnnual} regularMonthlyCents={regularMonthlyCents} founding={isFounding} promoEndsAt={promoEndsAt} />

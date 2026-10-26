@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { useState, type FormEvent } from "react";
+import { createPortal } from "react-dom";
 import { trackEvent } from "@/lib/analytics";
 import { ApiError } from "@/lib/api";
 import { getAttributionSource } from "@/lib/attribution";
@@ -141,9 +142,12 @@ export function CheckoutFlow({
         {label}
       </button>
 
-      {step !== "closed" && (
+      {/* Portaled to <body>: the sticky header's backdrop-blur makes it the
+          containing block of anything `fixed` inside it, which clipped the
+          modal to the header's height when opened from there. */}
+      {step !== "closed" && createPortal(
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/50 p-4" onClick={close}>
-          <div className="w-full max-w-sm rounded-2xl bg-white p-7 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+          <div className="w-full max-w-sm rounded-2xl bg-surface p-7 shadow-2xl" onClick={(e) => e.stopPropagation()}>
             {step === "phone" && (
               <form onSubmit={submitPhone} className="flex flex-col gap-4">
                 <div>
@@ -217,7 +221,8 @@ export function CheckoutFlow({
               </div>
             )}
           </div>
-        </div>
+        </div>,
+        document.body,
       )}
     </>
   );
