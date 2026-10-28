@@ -78,20 +78,18 @@ const PRINCIPLES = [
   },
 ];
 
+// Served as a file rather than inlined: its gradient and clip-path ids
+// would otherwise be global to the page. next/image does not optimize SVG.
 function TutorAvatar({ className }: { className?: string }) {
   return (
-    <svg viewBox="0 0 120 120" role="img" aria-label={`Ilustração da ${TUTOR_NAME}, a tutora com IA`} className={className}>
-      <circle cx="60" cy="60" r="60" fill="#ffffff" />
-      <path d="M22 120c4-22 20-34 38-34s34 12 38 34z" fill="#2b7fd4" />
-      <rect x="54" y="74" width="12" height="14" fill="#b97a52" />
-      <circle cx="60" cy="25" r="11" fill="#1e293b" />
-      <ellipse cx="60" cy="57" rx="20" ry="23" fill="#c98b62" />
-      <path d="M39 54c0-15 9-24 21-24s21 9 21 24c-5-8-12-12-21-11-9-1-16 3-21 11z" fill="#1e293b" />
-      <circle cx="52" cy="60" r="7" fill="none" stroke="#1f63a8" strokeWidth="2.5" />
-      <circle cx="68" cy="60" r="7" fill="none" stroke="#1f63a8" strokeWidth="2.5" />
-      <path d="M59 60h2" stroke="#1f63a8" strokeWidth="2.5" />
-      <path d="M53 71q7 5 14 0" fill="none" stroke="#6b3d22" strokeWidth="2.5" strokeLinecap="round" />
-    </svg>
+    <Image
+      src="/vera.svg"
+      alt={`Ilustração da ${TUTOR_NAME}, a tutora com IA`}
+      width={200}
+      height={200}
+      unoptimized
+      className={className}
+    />
   );
 }
 
