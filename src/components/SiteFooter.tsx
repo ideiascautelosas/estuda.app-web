@@ -15,6 +15,9 @@ export function SiteFooter({ showDownloads = true }: { showDownloads?: boolean }
         <div className="flex flex-col items-center gap-2 sm:items-end">
           {showDownloads && <AppDownloadLinks align="right" analyticsLocation="footer" />}
           <nav aria-label="Informações legais" className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1">
+            <Link href="/sobre" className="transition hover:text-slate-700">
+              Quem somos
+            </Link>
             <Link href="/termos-de-uso" className="transition hover:text-slate-700">
               Termos de Uso
             </Link>

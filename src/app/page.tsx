@@ -3,6 +3,7 @@ import Link from "next/link";
 import { AppDownloadLinks } from "@/components/AppDownloadLinks";
 import { AppScreenshots } from "@/components/AppScreenshots";
 import { CheckoutFlow } from "@/components/CheckoutFlow";
+import { FoundersBlock } from "@/components/FoundersBlock";
 import { PricingToggle } from "@/components/PricingToggle";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import type { Metadata } from "next";
@@ -118,6 +119,7 @@ export default async function Home() {
             <a href="#mentor" className="hover:text-slate-900">Como funciona</a>
             <a href="#recursos" className="hover:text-slate-900">Recursos</a>
             <a href="#preco" className="hover:text-slate-900">Preço</a>
+            <Link href="/sobre" className="hover:text-slate-900">Quem somos</Link>
             <a href="#faq" className="hover:text-slate-900">Dúvidas</a>
           </nav>
           <div className="flex items-center gap-3">
@@ -197,7 +199,9 @@ export default async function Home() {
           </div>
         </section>
 
-        <section id="preco" className="py-20">
+        <FoundersBlock />
+
+        <section id="preco" className="border-t border-slate-100 py-20">
           <div className="mx-auto max-w-5xl px-6">
             <h2 className="text-center text-3xl font-extrabold tracking-tight text-slate-900">Grátis com anúncios, ou sem anúncios com um plano</h2>
             <p className="mx-auto mt-3 max-w-xl text-center text-slate-600">
