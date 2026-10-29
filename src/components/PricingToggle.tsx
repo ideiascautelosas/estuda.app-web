@@ -14,33 +14,39 @@ function formatPromoDate(iso: string): string {
 }
 
 export function PricingToggle({
+  title,
   monthly,
   annual,
-  regularMonthlyCents,
   founding = false,
-  promoEndsAt = null,
+  analyticsLocation = "pricing",
 }: {
+  title: string;
   monthly: PlanOut;
   annual: PlanOut | null;
-  // The regular premium monthly price: the annual savings are measured
-  // against it, not against the founding rate shown as "monthly".
-  regularMonthlyCents?: number;
   founding?: boolean;
-  promoEndsAt?: string | null;
+  analyticsLocation?: string;
 }) {
   const [billingInterval, setBillingInterval] = useState<"month" | "year">("month");
-  const savingsCents = annual ? (regularMonthlyCents ?? monthly.price_cents) * 12 - annual.price_cents : 0;
+  // Each plan's annual savings are against its own monthly price.
+  const savingsCents = annual ? monthly.price_cents * 12 - annual.price_cents : 0;
   const annualIsBetterDeal = !!annual && savingsCents > 0;
   const plan = billingInterval === "year" && annualIsBetterDeal ? annual! : monthly;
+  const promoEndsAt = monthly.promo_ends_at;
 
   return (
-    <div className="flex flex-col items-center gap-6 rounded-2xl border border-brand/20 bg-brand-light px-8 py-10 text-center">
+    <div
+      className={`flex flex-col items-center gap-6 rounded-2xl border px-8 py-10 text-center ${
+        founding ? "border-brand/20 bg-brand-light" : "border-slate-200 bg-surface"
+      }`}
+    >
+      <h3 className="text-lg font-bold text-slate-900">{title}</h3>
       {founding && (
         <span className="rounded-full bg-brand px-4 py-1.5 text-xs font-bold uppercase tracking-wide text-white">
           Preço de fundador · nunca sobe para quem assinar agora
           {promoEndsAt ? ` · oferta até ${formatPromoDate(promoEndsAt)}` : ""}
         </span>
       )}
+      {founding && <p className="-mt-2 text-sm text-slate-600">Tudo do Premium, por um preço menor</p>}
       {annualIsBetterDeal && (
         <div className="inline-flex rounded-full border border-slate-200 bg-surface p-1">
           <button
@@ -77,7 +83,7 @@ export function PricingToggle({
       </div>
 
       <p className="text-sm text-slate-600">Sem anúncios · {plan.trial_days ?? 7} dias grátis para testar tudo, cancele quando quiser</p>
-      <CheckoutFlow planId={plan.id} label="Começar teste grátis" analyticsLocation="pricing" />
+      <CheckoutFlow planId={plan.id} label="Começar teste grátis" analyticsLocation={analyticsLocation} />
       <p className="max-w-md text-center text-xs leading-relaxed text-slate-500">
         Ao continuar, você concorda com os{" "}
         <Link href="/termos-de-uso" className="font-medium text-slate-700 hover:text-slate-900">

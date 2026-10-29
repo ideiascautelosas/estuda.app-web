@@ -82,21 +82,21 @@ export default async function Home() {
   const historyRow = comparison?.rows.find((r) => r.key === "history");
   let premium = FALLBACK_PREMIUM;
   let premiumAnnual: PlanOut | null = null;
-  let regularMonthlyCents = FALLBACK_PREMIUM.price_cents;
+  let founder: PlanOut | null = null;
+  let founderAnnual: PlanOut | null = null;
   let standard = FALLBACK_STANDARD;
   try {
     const plans = await getPlans();
-    // Founding-member rate: whenever the backend is still offering it (see
-    // billing.py's launch-window deadline), it replaces the regular monthly
-    // plan everywhere on this page — same checkout flow, discounted price.
-    // Once the window closes, list_plans stops returning it and this page
-    // falls back to the regular "premium" plan automatically.
-    premium = plans.find((p) => p.id === "premium_founding") ?? plans.find((p) => p.id === "premium") ?? FALLBACK_PREMIUM;
-    // Annual (R$ 299,90) and the founding rate are sold only here, on the
-    // website; the stores sell the monthly plans. Founding is monthly only.
+    premium = plans.find((p) => p.id === "premium") ?? FALLBACK_PREMIUM;
+    // Annual plans and the founder plan are sold only here, on the website;
+    // the stores sell the monthly plans.
     premiumAnnual = plans.find((p) => p.id === "premium_annual") ?? null;
-    regularMonthlyCents = plans.find((p) => p.id === "premium")?.price_cents ?? regularMonthlyCents;
-    // Standard has no founding/annual variant — just the one monthly plan.
+    // Founder: its own plan (Premium entitlements, cheaper price) that the
+    // backend lists only while the launch window is open (billing.py's
+    // deadline). Once it closes the card disappears and Premium stays.
+    founder = plans.find((p) => p.id === "premium_founding") ?? null;
+    founderAnnual = plans.find((p) => p.id === "premium_founding_annual") ?? null;
+    // Standard has no annual variant — just the one monthly plan.
     standard = plans.find((p) => p.id === "standard") ?? FALLBACK_STANDARD;
   } catch {
     // Keep the fallback plan so the page still renders (and still lets
@@ -104,8 +104,9 @@ export default async function Home() {
     // unreachable during a deploy.
   }
 
-  const isFounding = premium.id === "premium_founding";
-  const promoEndsAt = premium.promo_ends_at ?? null;
+  // The plan the header and hero sell: the founder rate while it's offered.
+  const featured = founder ?? premium;
+  const promoEndsAt = founder?.promo_ends_at ?? null;
 
   return (
     <div className="flex min-h-full flex-col">
@@ -127,7 +128,7 @@ export default async function Home() {
             <span className="hidden sm:block">
               <ThemeToggle />
             </span>
-            <CheckoutFlow planId={premium.id} label="Assinar" analyticsLocation="header" />
+            <CheckoutFlow planId={featured.id} label="Assinar" analyticsLocation="header" />
           </div>
         </div>
       </header>
@@ -141,7 +142,7 @@ export default async function Home() {
             O app acompanha cada simulado e monta o seu plano: resumos e simulados direcionados aos seus temas fracos, no formato da sua banca.
           </p>
           <div className="mt-9 flex flex-col items-center gap-3">
-            {isFounding && (
+            {founder && (
               <span className="rounded-full bg-brand/10 px-4 py-1.5 text-xs font-bold uppercase tracking-wide text-brand">
                 Oferta de fundador · preço trava para sempre{promoEndsAt ? ` · até ${formatPromoDate(promoEndsAt)}` : ""}
               </span>
@@ -149,13 +150,13 @@ export default async function Home() {
             <span className="rounded-full bg-emerald-50 px-4 py-1.5 text-xs font-bold uppercase tracking-wide text-emerald-700">
               App gratuito · com anúncios · sem anúncios nos planos pagos
             </span>
-            <CheckoutFlow planId={premium.id} label={`Começar teste grátis de ${premium.trial_days ?? 7} dias`} analyticsLocation="hero" />
+            <CheckoutFlow planId={featured.id} label={`Começar teste grátis de ${featured.trial_days ?? 7} dias`} analyticsLocation="hero" />
             <p className="max-w-md text-center text-sm text-slate-600">
               Use grátis, com anúncios, quanto quiser. Assine para estudar sem anúncios e liberar mais recursos.
             </p>
             <p className="text-sm text-slate-500">
-              R$ {formatPrice(premium.price_cents)}/mês depois do teste · cancele quando quiser
-              {isFounding && " · esse preço nunca sobe pra você"}
+              R$ {formatPrice(featured.price_cents)}/mês depois do teste · cancele quando quiser
+              {founder && " · esse preço nunca sobe pra você"}
             </p>
             <p className="max-w-md text-center text-xs leading-relaxed text-slate-500">
               Ao continuar, você concorda com os <Link href="/termos-de-uso" className="font-medium text-slate-700 hover:text-slate-900">Termos de Uso</Link> e com a{" "}
@@ -216,7 +217,7 @@ export default async function Home() {
                       <th className="px-5 py-4 font-bold">Recurso</th>
                       <th className="px-5 py-4 text-center font-bold">Grátis</th>
                       <th className="px-5 py-4 text-center font-bold text-brand">Standard</th>
-                      <th className="px-5 py-4 text-center font-bold text-brand">Premium</th>
+                      <th className="px-5 py-4 text-center font-bold text-brand">{founder ? "Premium e Fundador" : "Premium"}</th>
                     </tr>
                   </thead>
                   {comparison.groups.map((group) => {
@@ -258,7 +259,7 @@ export default async function Home() {
               </div>
             )}
 
-            <div className="mt-10 grid gap-6 lg:grid-cols-3">
+            <div className={`mt-10 grid gap-6 ${founder ? "md:grid-cols-2" : "lg:grid-cols-3"}`}>
               <div className="flex flex-col items-center gap-6 rounded-2xl border border-emerald-200 bg-emerald-50/50 px-8 py-10 text-center">
                 <h3 className="text-lg font-bold text-slate-900">Grátis</h3>
                 <p className="text-4xl font-extrabold tracking-tight text-slate-900">
@@ -279,7 +280,10 @@ export default async function Home() {
                 <p className="text-sm text-slate-600">Histórico completo e sem anúncios · {standard.trial_days ?? 7} dias grátis para testar, cancele quando quiser</p>
                 <CheckoutFlow planId={standard.id} label="Começar no Standard" analyticsLocation="pricing-standard" />
               </div>
-              <PricingToggle monthly={premium} annual={premiumAnnual} regularMonthlyCents={regularMonthlyCents} founding={isFounding} promoEndsAt={promoEndsAt} />
+              <PricingToggle title="Premium" monthly={premium} annual={premiumAnnual} />
+              {founder && (
+                <PricingToggle title="Fundador" monthly={founder} annual={founderAnnual} founding analyticsLocation="pricing-founder" />
+              )}
             </div>
           </div>
         </section>
