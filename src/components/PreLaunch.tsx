@@ -2,7 +2,7 @@ import Image from "next/image";
 import { SiteFooter } from "@/components/SiteFooter";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { ThemedScreenshot } from "@/components/ThemedScreenshot";
-import { LAUNCH_CONTACT_EMAIL } from "@/lib/launch";
+import { WaitlistForm } from "@/components/WaitlistForm";
 
 const HIGHLIGHTS = [
   {
@@ -53,7 +53,6 @@ function Phone({ screen, alt, className = "", priority = false }: { screen: stri
 }
 
 export function PreLaunch() {
-  const notify = `mailto:${LAUNCH_CONTACT_EMAIL}?subject=${encodeURIComponent("Quero ser avisado do lançamento do estuda.app")}`;
   return (
     <div className="flex min-h-full flex-col">
       <header className="border-b border-slate-100">
@@ -77,10 +76,8 @@ export function PreLaunch() {
               <p className="mx-auto mt-6 max-w-xl text-lg leading-relaxed text-slate-600 lg:mx-0">
                 Um mentor de estudo no celular: o app acompanha cada simulado e diz o que estudar a seguir — plano do dia, resumos e simulados direcionados aos seus temas fracos, no formato da sua banca.
               </p>
-              <div className="mt-9 flex flex-col items-center gap-3 sm:flex-row sm:justify-center lg:justify-start">
-                <a href={notify} className="rounded-xl bg-brand px-6 py-3.5 text-base font-bold text-white shadow-lg shadow-brand/20 transition hover:bg-brand-dark">
-                  Quero ser avisado
-                </a>
+              <div className="mt-9 flex flex-col items-center gap-3 lg:items-start">
+                <WaitlistForm placement="prelaunch_hero" align="start" />
                 <span className="text-sm text-slate-500">Grátis para começar. Sem cartão.</span>
               </div>
             </div>
@@ -129,9 +126,9 @@ export function PreLaunch() {
           <div className="mx-auto max-w-2xl px-6">
             <h2 className="text-3xl font-extrabold tracking-tight text-slate-900">Estamos quase lá</h2>
             <p className="mt-3 text-slate-600">O estuda.app chega em breve à App Store e ao Google Play. Deixe seu contato e avisamos no lançamento.</p>
-            <a href={notify} className="mt-8 inline-block rounded-xl bg-brand px-6 py-3.5 text-base font-bold text-white transition hover:bg-brand-dark">
-              Quero ser avisado
-            </a>
+            <div className="mt-8 flex justify-center">
+              <WaitlistForm placement="prelaunch_footer" />
+            </div>
           </div>
         </section>
       </main>
