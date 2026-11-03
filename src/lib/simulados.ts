@@ -139,6 +139,20 @@ export function splitItems(items: PackageItem[]) {
   return { main: items.filter((i) => !i.bonus), bonus: items.filter((i) => i.bonus) };
 }
 
+// The ingest names a mini "Mini simulado · Tecnologia e Cibersegurança 1";
+// the site shows only its assunto.
+export function miniAssunto(title: string): string {
+  return title.replace(/^mini simulado\s*·\s*/i, "").replace(/\s+\d+$/, "");
+}
+
+// Assuntos often contain "e" themselves, so they are joined with "·".
+export function bonusSummary(bonus: PackageItem[]): string {
+  const assuntos = bonus.map((i) => miniAssunto(i.title));
+  const sizes = new Set(bonus.map((i) => i.questions));
+  const each = sizes.size === 1 ? `, ${bonus[0].questions} questões cada` : "";
+  return `${bonus.length} mini simulados de brinde (${assuntos.join(" · ")}${each})`;
+}
+
 // Server components: the catalog is public and changes rarely.
 export async function fetchPackages(): Promise<SimuladoPackage[]> {
   try {

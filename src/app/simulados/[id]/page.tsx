@@ -5,7 +5,7 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { BuyBox } from "@/components/simulados/BuyBox";
 import { Check } from "@/components/simulados/PackageCatalog";
 import { SimuladosHeader } from "@/components/simulados/SimuladosHeader";
-import { PACKAGE_FACTS, fetchPackage, formatISODate, splitItems } from "@/lib/simulados";
+import { PACKAGE_FACTS, bonusSummary, fetchPackage, formatISODate, miniAssunto, splitItems } from "@/lib/simulados";
 import { pageMetadata } from "@/lib/site";
 
 export const revalidate = 300;
@@ -27,7 +27,7 @@ export default async function PackagePage(props: PageProps<"/simulados/[id]">) {
   const max = facts ? Math.max(...facts.disciplinas.map(([, n]) => n)) : 1;
   const inclui = [
     `${main.length} simulados completos${main[0] ? ` de ${main[0].questions} questões` : ""}`,
-    ...(bonus.length ? [`${bonus.length} mini simulados de brinde`] : []),
+    ...(bonus.length ? [bonusSummary(bonus)] : []),
     "Gabarito comentado em cada questão",
     "PDFs com senha exclusiva da sua compra",
   ];
@@ -74,8 +74,8 @@ export default async function PackagePage(props: PageProps<"/simulados/[id]">) {
                 ))}
                 {bonus.map((i) => (
                   <div key={i.title} className="flex flex-col gap-1 rounded-xl border border-dashed border-amber-800 bg-amber-100 p-3.5">
-                    <span className="text-[11px] font-bold uppercase tracking-wide text-amber-800">Brinde</span>
-                    <span className="text-[15px] font-extrabold text-slate-900">{i.title}</span>
+                    <span className="text-[11px] font-bold uppercase tracking-wide text-amber-800">Brinde · mini simulado</span>
+                    <span className="text-[15px] font-extrabold text-slate-900">{miniAssunto(i.title)}</span>
                     <span className="text-[13px] text-slate-600">{i.questions} questões</span>
                   </div>
                 ))}

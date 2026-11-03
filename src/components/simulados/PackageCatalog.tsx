@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { PACKAGE_FACTS, daysUntil, formatBRL, formatISODate, splitItems, type SimuladoPackage } from "@/lib/simulados";
+import { PACKAGE_FACTS, bonusSummary, daysUntil, formatBRL, formatISODate, splitItems, type SimuladoPackage } from "@/lib/simulados";
 
 const selectClass = "h-11 rounded-xl border border-slate-200 bg-surface px-3 text-[15px] text-slate-900";
 
@@ -57,7 +57,7 @@ function PackageCard({ pkg }: { pkg: SimuladoPackage }) {
   const perSimulado = main[0]?.questions;
   const inclui = [
     `${main.length} simulados completos${perSimulado ? ` de ${perSimulado} questões` : ""}`,
-    ...(bonus.length ? [`${bonus.length} mini simulados de brinde (${bonus[0].questions} questões de um assunto)`] : []),
+    ...(bonus.length ? [bonusSummary(bonus)] : []),
     "Gabarito comentado em cada questão",
     "PDFs com senha exclusiva da sua compra",
   ];
